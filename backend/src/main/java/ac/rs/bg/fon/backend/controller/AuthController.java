@@ -1,5 +1,10 @@
 package ac.rs.bg.fon.backend.controller;
 
+import java.net.URI;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +24,9 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+	
+	@Value("${app.frontend.url}")
+	private String frontendUrl;
 	
 	private final AuthService authService;
 
@@ -42,8 +50,18 @@ public class AuthController {
 	}
 	
 	@GetMapping("/verify")
-	public ResponseEntity<String> verify(@RequestParam String token) {
-		authService.verifikujNalog(token);
-		return ResponseEntity.ok("Nalog je aktiviran. Sada možeš da se uloguješ.");
+	public ResponseEntity<Void> verify(@RequestParam String token) {
+		try {
+			authService.verifikujNalog(token);
+			return redirect(frontendUrl + "/login?verified=success");
+		} catch (IllegalArgumentException ex) {
+			return redirect(frontendUrl + "/login?verified=error");
+		}
+	}
+	
+	private ResponseEntity<Void> redirect(String url) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setLocation(URI.create(url));
+		return new ResponseEntity<>(headers, HttpStatus.FOUND);
 	}
 }
