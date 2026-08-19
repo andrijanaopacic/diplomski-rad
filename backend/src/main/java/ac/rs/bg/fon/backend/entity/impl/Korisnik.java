@@ -5,9 +5,6 @@ import java.util.Objects;
 import ac.rs.bg.fon.backend.entity.MainEntity;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Entity
