@@ -6,7 +6,7 @@ import lombok.*;
 
 @Getter
 @Setter
-public class RegisterRequest implements Dto{
+public class RegisterRequestDto implements Dto{
 
 	@NotBlank(message = "Korisničko ime je obavezno polje.")
 	@Size(min = 3, max = 50, message = "Korisničko ime mora imati između 3 i 50 karaktera.")

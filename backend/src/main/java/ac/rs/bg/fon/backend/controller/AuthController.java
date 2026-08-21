@@ -1,6 +1,8 @@
 package ac.rs.bg.fon.backend.controller;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -13,11 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import ac.rs.bg.fon.backend.dto.impl.AuthResponse;
+import ac.rs.bg.fon.backend.dto.impl.AuthResponseDto;
 import ac.rs.bg.fon.backend.dto.impl.KorisnikDto;
-import ac.rs.bg.fon.backend.dto.impl.LoginRequest;
+import ac.rs.bg.fon.backend.dto.impl.LoginRequestDto;
 import ac.rs.bg.fon.backend.dto.impl.RegisterOrganizacijaDto;
-import ac.rs.bg.fon.backend.dto.impl.RegisterRequest;
+import ac.rs.bg.fon.backend.dto.impl.RegisterRequestDto;
+import ac.rs.bg.fon.backend.dto.impl.RegistracijaResponseDto;
 import ac.rs.bg.fon.backend.service.AuthService;
 import jakarta.validation.Valid;
 
@@ -35,17 +38,17 @@ public class AuthController {
 	}
 	
 	@PostMapping("/register-organizacija")
-	public ResponseEntity<AuthResponse> registerOrganizacija(@Valid @RequestBody RegisterOrganizacijaDto req) {
-		return ResponseEntity.ok(authService.registerOrganizacija(req));
+	public ResponseEntity<RegistracijaResponseDto> registerOrganizacija(@RequestBody RegisterOrganizacijaDto req) {
+	    return ResponseEntity.ok(authService.registerOrganizacija(req));
 	}
 	
 	@PostMapping("/register")
-	public ResponseEntity<KorisnikDto> register(@Valid @RequestBody RegisterRequest req) {
-		return ResponseEntity.ok(authService.register(req));
+	public ResponseEntity<RegistracijaResponseDto> register(@RequestBody RegisterRequestDto req) {
+	    return ResponseEntity.ok(authService.register(req));
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest req) {
+	public ResponseEntity<AuthResponseDto> login(@RequestBody LoginRequestDto req) {
 		return ResponseEntity.ok(authService.login(req));
 	}
 	
@@ -53,10 +56,15 @@ public class AuthController {
 	public ResponseEntity<Void> verify(@RequestParam String token) {
 		try {
 			authService.verifikujNalog(token);
-			return redirect(frontendUrl + "/login?verified=success");
-		} catch (IllegalArgumentException ex) {
-			return redirect(frontendUrl + "/login?verified=error");
+			String poruka = "Uspešna registracija na sistem.";
+			return redirect(frontendUrl + "/login?verified=success&poruka=" + encode(poruka));
+		} catch (RuntimeException ex) {
+			return redirect(frontendUrl + "/login?verified=error&poruka=" + encode(ex.getMessage()));
 		}
+	}
+	
+	private String encode(String tekst) {
+		return URLEncoder.encode(tekst, StandardCharsets.UTF_8);
 	}
 	
 	private ResponseEntity<Void> redirect(String url) {

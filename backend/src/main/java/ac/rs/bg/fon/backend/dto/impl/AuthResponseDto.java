@@ -11,7 +11,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthResponse implements Dto {
+public class AuthResponseDto implements Dto {
 	private String token;
 	private KorisnikDto korisnik;
+	private String poruka;
 }

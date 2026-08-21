@@ -26,7 +26,7 @@ public class KorisnikController {
 	
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/urednik")
-	public ResponseEntity<KorisnikDto> createUrednik(@Valid @RequestBody CreateUrednikDto req) {
+	public ResponseEntity<KorisnikDto> createUrednik(@RequestBody CreateUrednikDto req) {
 		return ResponseEntity.ok(korisnikService.createUrednik(req));
 	}
 }

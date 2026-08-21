@@ -7,6 +7,7 @@ export default function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
   const [loading, setLoading] = useState(false)
 
   const { login } = useAuth()
@@ -14,19 +15,23 @@ export default function Login() {
   const [searchParams] = useSearchParams()
 
   const verified = searchParams.get('verified')
+  const verifikacionaPoruka = searchParams.get('poruka')
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
+    setFieldErrors({})
     setLoading(true)
 
     try {
       const response = await api.post('/auth/login', { username, password })
       login(response.data)
+      alert(response.data.poruka)
       navigate('/')
     } catch (err) {
-      const poruka = err.response?.data?.message || 'Greška prilikom prijave.'
-      setError(poruka)
+      const data = err.response?.data
+      setError(data?.message || 'Greška prilikom prijave.')
+      setFieldErrors(data?.fieldErrors || {})
     } finally {
       setLoading(false)
     }
@@ -38,10 +43,10 @@ export default function Login() {
         <h1>Prijava</h1>
 
         {verified === 'success' && (
-          <p className="success">Nalog je aktiviran. Sada se možeš prijaviti.</p>
+          <p className="success">{verifikacionaPoruka}</p>
         )}
         {verified === 'error' && (
-          <p className="error">Link za potvrdu nije validan ili je istekao.</p>
+          <p className="error">{verifikacionaPoruka}</p>
         )}
 
         {error && <p className="error">{error}</p>}
@@ -53,6 +58,7 @@ export default function Login() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
+          {fieldErrors.username && <small className="field-error">{fieldErrors.username}</small>}
         </label>
 
         <label>
@@ -62,6 +68,7 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          {fieldErrors.password && <small className="field-error">{fieldErrors.password}</small>}
         </label>
 
         <button type="submit" disabled={loading}>

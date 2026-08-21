@@ -5,7 +5,8 @@ import api from '../api/axios'
 export default function RegisterUcesnik() {
   const [form, setForm] = useState({ username: '', email: '', password: '' })
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState({})
+  const [poruka, setPoruka] = useState('')
   const [loading, setLoading] = useState(false)
 
   function handleChange(e) {
@@ -15,28 +16,27 @@ export default function RegisterUcesnik() {
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
+    setFieldErrors({})
     setLoading(true)
 
     try {
-      await api.post('/auth/register', form)
-      setSuccess(true)
+      const response = await api.post('/auth/register', form)
+      setPoruka(response.data.poruka)
     } catch (err) {
-      const poruka = err.response?.data?.message || 'Greška prilikom registracije.'
-      setError(poruka)
+      const data = err.response?.data
+      setError(data?.message || 'Greška prilikom registracije.')
+      setFieldErrors(data?.fieldErrors || {})
     } finally {
       setLoading(false)
     }
   }
 
-  if (success) {
+  if (poruka) {
     return (
       <div className="auth-page">
         <div className="auth-form">
           <h1>Proveri mejl</h1>
-          <p>
-            Poslali smo ti link za potvrdu naloga na <strong>{form.email}</strong>.
-            Klikni na njega da aktiviraš nalog, pa se onda vrati i prijavi.
-          </p>
+          <p>{poruka}</p>
           <Link to="/login">Nazad na prijavu</Link>
         </div>
       </div>
@@ -53,11 +53,13 @@ export default function RegisterUcesnik() {
         <label>
           Korisničko ime
           <input name="username" value={form.username} onChange={handleChange} />
+          {fieldErrors.username && <small className="field-error">{fieldErrors.username}</small>}
         </label>
 
         <label>
           Email
           <input type="text" name="email" value={form.email} onChange={handleChange} />
+          {fieldErrors.email && <small className="field-error">{fieldErrors.email}</small>}
         </label>
 
         <label>
@@ -68,6 +70,7 @@ export default function RegisterUcesnik() {
             value={form.password}
             onChange={handleChange}
           />
+          {fieldErrors.password && <small className="field-error">{fieldErrors.password}</small>}
         </label>
 
         <button type="submit" disabled={loading}>

@@ -9,6 +9,7 @@ body {
   color: #f5f5f5;
 }
 
+/* Login i registracija */
 
 .auth-page {
   min-height: 100vh;
@@ -134,7 +135,15 @@ body {
   font-size: 14px;
   margin-bottom: 18px;
 }
- 
+
+.field-error {
+  display: block;
+  color: #ff6b6b;
+  font-size: 12px;
+  margin-top: 4px;
+  font-weight: 400;
+}
+
 .success {
   background-color: rgba(80, 220, 130, 0.12);
   border: 1px solid rgba(80, 220, 130, 0.35);
@@ -145,6 +154,33 @@ body {
   margin-bottom: 18px;
 }
 
+/* Telefon - responzivnost */
+
+@media (max-width: 480px) {
+  .auth-page {
+    padding: 12px;
+  }
+
+  .auth-form {
+    padding: 24px 20px;
+    border-radius: 12px;
+  }
+
+  .auth-form h1 {
+    font-size: 22px;
+  }
+}
+
+/* Desktop - responzivnost */
+
+@media (min-width: 1200px) {
+  .auth-form {
+    max-width: 480px;
+    padding: 48px;
+  }
+}
+
+/* Stranice */
 
 .page {
   max-width: 600px;
