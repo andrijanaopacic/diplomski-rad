@@ -18,5 +18,6 @@ public class KorisnikDto implements Dto{
 	private String username;
 	private String email;
 	private Uloga uloga;
+	private boolean enabled;
 	
 }

@@ -219,7 +219,8 @@ public class AuthService {
 				korisnik.getKorisnikId(),
 				korisnik.getUsername(),
 				korisnik.getEmail(),
-				korisnik.getUloga()
+				korisnik.getUloga(),
+				korisnik.isEnabled()
 		);
 	}
 	
