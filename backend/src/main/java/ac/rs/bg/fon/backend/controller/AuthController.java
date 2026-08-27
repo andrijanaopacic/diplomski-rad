@@ -20,7 +20,7 @@ import ac.rs.bg.fon.backend.dto.impl.KorisnikDto;
 import ac.rs.bg.fon.backend.dto.impl.LoginRequestDto;
 import ac.rs.bg.fon.backend.dto.impl.RegisterOrganizacijaDto;
 import ac.rs.bg.fon.backend.dto.impl.RegisterRequestDto;
-import ac.rs.bg.fon.backend.dto.impl.RegistracijaResponseDto;
+import ac.rs.bg.fon.backend.dto.impl.ResponseDto;
 import ac.rs.bg.fon.backend.service.AuthService;
 import jakarta.validation.Valid;
 
@@ -38,13 +38,13 @@ public class AuthController {
 	}
 	
 	@PostMapping("/register-organizacija")
-	public ResponseEntity<RegistracijaResponseDto> registerOrganizacija(@RequestBody RegisterOrganizacijaDto req) {
-	    return ResponseEntity.ok(authService.registerOrganizacija(req));
+	public ResponseEntity<ResponseDto<KorisnikDto>> registerOrganizacija(@RequestBody RegisterOrganizacijaDto req) {
+		return ResponseEntity.ok(authService.registerOrganizacija(req));
 	}
-	
+ 
 	@PostMapping("/register")
-	public ResponseEntity<RegistracijaResponseDto> register(@RequestBody RegisterRequestDto req) {
-	    return ResponseEntity.ok(authService.register(req));
+	public ResponseEntity<ResponseDto<KorisnikDto>> register(@RequestBody RegisterRequestDto req) {
+		return ResponseEntity.ok(authService.register(req));
 	}
 
 	@PostMapping("/login")

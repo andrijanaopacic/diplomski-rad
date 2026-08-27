@@ -9,6 +9,20 @@ body {
   color: #f5f5f5;
 }
 
+
+a {
+  color: #ccc;
+  text-decoration: none;
+}
+
+a:visited {
+  color: #ccc;
+}
+
+a:hover {
+  color: #ff8800;
+}
+
 /* ---------- Auth stranice (Login, Registracija) ---------- */
 
 .auth-page {
@@ -25,6 +39,7 @@ body {
   border: 1px solid #2a2a2a;
   border-radius: 16px;
   padding: 40px;
+  margin: 0 auto;
   width: 100%;
   max-width: 440px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
@@ -180,24 +195,12 @@ body {
     font-size: 22px;
   }
 
-  /* Meni - prelama u dva reda umesto da se stiska u jedan */
-  .menu {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .menu-links {
-    width: 100%;
-    justify-content: space-between;
-  }
-
   .page {
     padding: 0 16px;
     margin: 30px auto;
   }
 
-  /* Traka sa pretragom i dugmetom - jedno ispod drugog na uskom ekranu */
+  /* Traka sa pretragom i dugmetom */
   .urednici-toolbar {
     flex-direction: column;
   }
@@ -206,7 +209,7 @@ body {
     width: 100%;
   }
 
-  /* Red sa urednikom - email i dugme jedno ispod drugog, ne zbijeno u red */
+  /* Red sa urednikom */
   .urednik-red {
     flex-direction: column;
     align-items: flex-start;
@@ -217,13 +220,14 @@ body {
     align-self: flex-end;
   }
 
-  /* Modal - manje bočnog razmaka, da se ne "seče" na uskim ekranima */
+  /* Modal */
   .modal-box {
     padding: 24px 18px;
+    max-height: 85vh;
   }
 }
 
-/* ---------- Responsive - veći ekrani, da forma ne ostane sitna na sredini ---------- */
+/* ---------- Responsive - veći ekrani ---------- */
 
 @media (min-width: 1200px) {
   .auth-form {
@@ -240,51 +244,319 @@ body {
   padding: 0 24px;
 }
 
-/* ---------- Meni na Home stranici ---------- */
-
-.menu {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #2a2a2a;
+.page-wide {
+  max-width: 1100px;
 }
 
-.menu-brand {
-  font-weight: 700;
+/* ---------- Kartice dogadjaja ---------- */
+
+.dogadjaji-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.dogadjaj-kartica {
+  background: #1c1c1c;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dogadjaj-slika {
+  height: 150px;
+  background-color: #111;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dogadjaj-slika-placeholder {
+  color: #666;
+  font-size: 13px;
+}
+
+.dogadjaj-sadrzaj {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.dogadjaj-sadrzaj h3 {
+  margin: 0 0 8px;
+  cursor: pointer;
   color: #ff8800;
 }
 
-.menu-links {
-  display: flex;
-  align-items: center;
-  gap: 18px;
+.dogadjaj-sadrzaj h3:hover {
+  text-decoration: underline;
 }
 
-.menu-links a {
-  color: #f5f5f5;
+.dogadjaj-detalji-link {
+  display: inline-block;
+  color: #999;
+  font-size: 12px;
   text-decoration: none;
-  font-weight: 500;
+  margin-bottom: 12px;
 }
 
-.menu-links a:hover {
+.dogadjaj-detalji-link:hover {
   color: #ff8800;
+  text-decoration: underline;
 }
 
-.menu-logout {
-  padding: 6px 14px;
+.dogadjaj-organizacija {
+  color: #999;
+  font-size: 13px;
+  font-style: italic;
+  margin: 0 0 10px;
+}
+
+.sekundarno-dugme {
+  background: transparent !important;
+  border: 1px solid #3a3a3a !important;
+  color: #ccc !important;
+  margin-top: 10px;
+}
+
+.sekundarno-dugme:hover {
+  border-color: #ff8800 !important;
+  color: #ff8800 !important;
+}
+
+.dogadjaj-opis {
+  color: #ccc;
+  font-size: 14px;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.dogadjaj-akcije {
+  display: flex;
+  gap: 8px;
+}
+
+.dogadjaj-akcije button {
+  flex: 1;
+  padding: 8px;
   background: transparent;
   border: 1px solid #ff8800;
   color: #ff8800;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
+  font-size: 13px;
 }
 
-.menu-logout:hover {
+.dogadjaj-akcije button:hover {
   background: #ff8800;
   color: #111;
+}
+
+.auth-form label input,
+.auth-form label textarea,
+.auth-form label select {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  background-color: #111;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.auth-form label textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.auth-form label input:focus,
+.auth-form label textarea:focus,
+.auth-form label select:focus {
+  outline: none;
+  border-color: #ff8800;
+}
+
+.dogadjaj-akcije button.danger {
+  background: rgba(226, 75, 74, 0.12);
+  border-color: rgba(226, 75, 74, 0.5);
+  color: #ff8785;
+}
+
+.dogadjaj-akcije button.danger:hover {
+  background: #e24b4a;
+  border-color: #e24b4a;
+  color: #fff;
+}
+
+.dogadjaj-detalji-slika {
+  height: 260px;
+  border-radius: 12px;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 20px;
+}
+
+.aktivnosti-placeholder {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #2a2a2a;
+}
+
+.aktivnosti-sekcija {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #2a2a2a;
+}
+
+.aktivnosti-sekcija h2 {
+  color: #ff8800;
+  margin-bottom: 18px;
+}
+
+.aktivnosti-sekcija-naslov {
+  color: #ff8800;
+  margin-top: 24px;
+  margin-bottom: 18px;
+}
+
+.urednik-red .dogadjaj-akcije {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- Forma modal - polja ---------- */
+
+.modal-box-wide {
+  max-width: 560px;
+}
+
+.polja-forme-lista {
+  margin: 8px 0 20px;
+  padding: 14px;
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+}
+
+.polja-forme-naslov {
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #ff8800;
+}
+
+.polje-forme-red {
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.polje-forme-red:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.polje-forme-naziv {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  background-color: #111;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.polje-forme-red-donji {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.polje-forme-red-donji select {
+  flex: 1;
+  min-width: 100px;
+  padding: 8px 10px;
+  background-color: #111;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+}
+
+.polje-forme-red-donji .checkbox-label {
+  margin: 0;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.polje-forme-red-donji button {
+  padding: 6px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.dodaj-polje-dugme {
+  background: transparent;
+  border: 1px dashed #ff8800;
+  color: #ff8800;
+  padding: 8px;
+  width: 100%;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.dodaj-polje-dugme:hover {
+  background: rgba(255, 136, 0, 0.1);
+}
+
+.forma-akcije {
+  display: flex;
+  gap: 10px;
+}
+
+.forma-akcije button {
+  flex: 1;
+}
+
+.qr-skener-okvir {
+  max-width: 400px;
+  margin: 0 auto 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #ff8800;
+}
+
+/* GLOBALNO .danger pravilo */
+button.danger {
+  background: rgba(226, 75, 74, 0.12) !important;
+  border-color: rgba(226, 75, 74, 0.5) !important;
+  color: #ff8785 !important;
+}
+
+button.danger:hover {
+  background: #e24b4a !important;
+  border-color: #e24b4a !important;
+  color: #fff !important;
 }
 
 /* ---------- Lista urednika ---------- */
@@ -315,7 +587,7 @@ body {
   padding-right: 36px;
 }
 
-.search-clear {
+.search-wrapper .search-clear {
   position: absolute;
   right: 8px;
   top: 50%;
@@ -327,6 +599,7 @@ body {
   cursor: pointer;
   line-height: 1;
   padding: 4px 8px;
+  width: auto;
 }
 
 .search-clear:hover {
@@ -408,6 +681,8 @@ body {
   padding: 32px;
   width: 100%;
   max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
 }
 
@@ -465,4 +740,126 @@ body {
 
 .page button:hover {
   background-color: #e66a00;
+}
+
+/* ---------- Meni (Meni.jsx) ---------- */
+
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 24px;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.menu-brand {
+  font-weight: 700;
+  color: #ff8800;
+}
+
+.menu-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  flex: 1;
+}
+
+.menu-nav a {
+  color: #f5f5f5;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.menu-nav a:hover {
+  color: #ff8800;
+}
+
+.menu-nalog {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 16px;
+  border-left: 1px solid #2a2a2a;
+}
+
+.menu-korisnik {
+  color: #999;
+  font-size: 14px;
+  padding: 0 4px;
+}
+
+.menu-logout {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid #ff8800;
+  color: #ff8800;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.menu-logout:hover {
+  background: #ff8800;
+  color: #111;
+}
+
+.menu-login-link {
+  display: inline-block;
+}
+
+@media (max-width: 600px) {
+  .menu {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .menu-brand {
+    order: 0;
+  }
+
+  .menu-nalog {
+    order: 1;
+    width: 100%;
+    justify-content: space-between;
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .menu-nav {
+    order: 2;
+    width: 100%;
+  }
+}
+
+.sadrzaj-centriran {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.o-aplikaciji {
+  background: #1c1c1c;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin-bottom: 28px;
+}
+
+.o-aplikaciji h2 {
+  color: #ff8800;
+  margin: 0 0 14px;
+  font-size: 18px;
+}
+
+.o-aplikaciji ol {
+  margin: 0;
+  padding-left: 20px;
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.8;
 }

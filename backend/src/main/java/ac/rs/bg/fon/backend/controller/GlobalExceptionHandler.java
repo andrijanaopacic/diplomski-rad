@@ -35,7 +35,6 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<MyError> handleGeneric(Exception ex) {
 		log.error("Neočekivana greška na serveru", ex);
-		return ResponseEntity.internalServerError()
-				.body(new MyError(500, "Došlo je do neočekivane greške na serveru."));
+		return ResponseEntity.internalServerError().body(new MyError(500, "Došlo je do neočekivane greške na serveru."));
 	}
 }

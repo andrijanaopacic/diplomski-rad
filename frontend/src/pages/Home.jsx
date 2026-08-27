@@ -1,25 +1,27 @@
-import { Link } from 'react-router-dom'
+import Meni from '../components/Meni'
+import JavniDogadjaji from '../components/JavniDogadjaji'
 import { useAuth } from '../context/AuthContext'
+import OAplikaciji from '../components/OAplikaciji'
 
 export default function Home() {
-  const { korisnik, logout } = useAuth()
+  const { korisnik } = useAuth()
 
- 
-  const jeAdmin = korisnik?.uloga === 'ADMIN'
+  const jeAdminIliUrednik = korisnik?.uloga === 'ADMIN' || korisnik?.uloga === 'UREDNIK'
 
   return (
-    <div className="page">
-      <nav className="menu">
-        <span className="menu-brand">Upravljanje događajima</span>
-        <div className="menu-links">
-          {jeAdmin && <Link to="/urednici">Urednici</Link>}
-          <button onClick={logout} className="menu-logout">Odjavi se</button>
-        </div>
-      </nav>
+    <div className="page page-wide">
+      <Meni />
 
-      <h1>Zdravo, {korisnik?.username}!</h1>
-      <p>Uloga: {korisnik?.uloga}</p>
-      <p>Email: {korisnik?.email}</p>
+      {jeAdminIliUrednik ? (
+        <>
+          <h1>Zdravo, {korisnik?.username}!</h1>
+          <p>Uloga: {korisnik?.uloga}</p>
+          <p>Email: {korisnik?.email}</p>
+          <OAplikaciji jeAdminIliUrednik={true} />
+        </>
+      ) : (
+        <JavniDogadjaji />
+      )}
     </div>
   )
 }

@@ -14,8 +14,7 @@ import org.springframework.stereotype.Service;
 import ac.rs.bg.fon.backend.dto.impl.CreateUrednikDto;
 import ac.rs.bg.fon.backend.dto.impl.IzmeniUrednikaDto;
 import ac.rs.bg.fon.backend.dto.impl.KorisnikDto;
-import ac.rs.bg.fon.backend.dto.impl.PretragaUrednikaResponseDto;
-import ac.rs.bg.fon.backend.dto.impl.RegistracijaResponseDto;
+import ac.rs.bg.fon.backend.dto.impl.ResponseDto;
 import ac.rs.bg.fon.backend.entity.impl.Korisnik;
 import ac.rs.bg.fon.backend.entity.impl.Organizacija;
 import ac.rs.bg.fon.backend.entity.impl.Uloga;
@@ -32,7 +31,6 @@ public class KorisnikService {
 	private final Validator validator;
 	
 	public KorisnikService(KorisnikRepository korisnikRepository, PasswordEncoder encoder, Validator validator) {
-		super();
 		this.korisnikRepository = korisnikRepository;
 		this.encoder = encoder;
 		this.validator = validator;
@@ -49,16 +47,21 @@ public class KorisnikService {
 		}
 	}
 	
-	public RegistracijaResponseDto createUrednik(CreateUrednikDto req) {
-		proveriValidnost(req, "Sistem ne može da kreira urednika.");
-		
+	public ResponseDto<KorisnikDto> createUrednik(CreateUrednikDto req) {
+		String poruka = "Sistem ne može da kreira urednika.";
+		proveriValidnost(req, poruka);
+ 
 		Korisnik admin = trenutniKorisnik();
-		 
+ 
+		Map<String, String> fieldErrors = new LinkedHashMap<>();
 		if (korisnikRepository.existsByUsername(req.getUsername())) {
-			throw new RuntimeException("Korisničko ime je zauzeto.");
+			fieldErrors.put("username", "Korisničko ime je zauzeto.");
 		}
 		if (korisnikRepository.existsByEmail(req.getEmail())) {
-			throw new RuntimeException("Email adresa je zauzeta.");
+			fieldErrors.put("email", "Email adresa je zauzeta.");
+		}
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidacijaException(poruka, fieldErrors);
 		}
  
 		Organizacija organizacija = admin.getOrganizacija();
@@ -73,52 +76,38 @@ public class KorisnikService {
  
 		korisnikRepository.save(urednik);
  
-		String poruka = "Sistem je zapamtio urednika.";
-		KorisnikDto korisnikDto = new KorisnikDto(
-				urednik.getKorisnikId(),
-				urednik.getUsername(),
-				urednik.getEmail(),
-				urednik.getUloga(),
-				urednik.isEnabled()
-		);
-		return new RegistracijaResponseDto(poruka, korisnikDto);
+		String uspesnaPoruka = "Sistem je zapamtio urednika.";
+		KorisnikDto korisnikDto = toDto(urednik);
+		return new ResponseDto<>(uspesnaPoruka, toDto(urednik));
 	}
-	
+ 
 	private Korisnik trenutniKorisnik() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String username = auth.getName();
 		return korisnikRepository.findByUsername(username)
 				.orElseThrow(() -> new RuntimeException("Ulogovan korisnik ne postoji u bazi."));
 	}
-	
-	public PretragaUrednikaResponseDto pretraziUrednike(String tekst) {
+ 
+	public ResponseDto<List<KorisnikDto>> findUrednike(String tekst) {
 		Korisnik admin = trenutniKorisnik();
 		Organizacija organizacija = admin.getOrganizacija();
-		
+ 
 		List<Korisnik> listaUrednika = korisnikRepository.pretraziUrednike(organizacija, tekst);
-		
-		if(listaUrednika.isEmpty()) {
+ 
+		if (listaUrednika.isEmpty()) {
 			throw new RuntimeException("Sistem ne može da nađe urednike po zadatom kriterijumu.");
 		}
-		
-		List<KorisnikDto> urednici = new ArrayList<KorisnikDto>();
-		
+ 
+		List<KorisnikDto> urednici = new ArrayList<>();
 		for (Korisnik urednik : listaUrednika) {
-			KorisnikDto korisnikDto = new KorisnikDto(
-					urednik.getKorisnikId(),
-					urednik.getUsername(),
-					urednik.getEmail(),
-					urednik.getUloga(),
-					urednik.isEnabled()
-			);
-			urednici.add(korisnikDto);
+			urednici.add(toDto(urednik));
 		}
-		
+ 
 		String poruka = "Sistem je našao urednike po zadatom kriterijumu.";
-		return new PretragaUrednikaResponseDto(poruka, urednici);
+		return new ResponseDto<>(poruka, urednici);
 	}
-	
-	public KorisnikDto ucitajUrednika(Long id) {
+ 
+	public KorisnikDto loadUrednika(Long id) {
 		Korisnik admin = trenutniKorisnik();
  
 		Korisnik urednik = korisnikRepository.findById(id)
@@ -131,16 +120,10 @@ public class KorisnikService {
 			throw new RuntimeException("Sistem ne može da učita urednika.");
 		}
  
-		return new KorisnikDto(
-				urednik.getKorisnikId(),
-				urednik.getUsername(),
-				urednik.getEmail(),
-				urednik.getUloga(),
-				urednik.isEnabled()
-		);
+		return toDto(urednik);
 	}
-	
-	public RegistracijaResponseDto izmeniUrednika(Long id, IzmeniUrednikaDto req) {
+ 
+	public ResponseDto<KorisnikDto> updateUrednika(Long id, IzmeniUrednikaDto req) {
 		Korisnik admin = trenutniKorisnik();
  
 		Korisnik urednik = korisnikRepository.findById(id)
@@ -153,34 +136,40 @@ public class KorisnikService {
 			throw new RuntimeException("Sistem ne može da učita urednika.");
 		}
  
-		proveriValidnost(req, "Sistem ne može da izmeni urednika.");
+		String poruka = "Sistem ne može da izmeni urednika.";
+		proveriValidnost(req, poruka);
  
-		if (!urednik.getEmail().equals(req.getEmail())
-				&& korisnikRepository.existsByEmail(req.getEmail())) {
-			throw new RuntimeException("Email adresa je zauzeta.");
+		Map<String, String> fieldErrors = new LinkedHashMap<>();
+		if (!urednik.getEmail().equals(req.getEmail()) && korisnikRepository.existsByEmail(req.getEmail())) {
+			fieldErrors.put("email", "Email adresa je zauzeta.");
+		}
+		if (req.getPassword() != null && !req.getPassword().isBlank() && req.getPassword().length() < 6) {
+			fieldErrors.put("password", "Lozinka mora imati najmanje 6 karaktera.");
+		}
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidacijaException(poruka, fieldErrors);
 		}
  
 		urednik.setEmail(req.getEmail());
 		urednik.setEnabled(req.isEnabled());
  
 		if (req.getPassword() != null && !req.getPassword().isBlank()) {
-			if (req.getPassword().length() < 6) {
-				throw new RuntimeException("Lozinka mora imati najmanje 6 karaktera.");
-			}
 			urednik.setPasswordHash(encoder.encode(req.getPassword()));
 		}
  
 		korisnikRepository.save(urednik);
  
-		String poruka = "Urednik je izmenjen.";
-		KorisnikDto korisnikDto = new KorisnikDto(
-				urednik.getKorisnikId(),
-				urednik.getUsername(),
-				urednik.getEmail(),
-				urednik.getUloga(),
-				urednik.isEnabled()
-		);
-		return new RegistracijaResponseDto(poruka, korisnikDto);
+		String uspesnaPoruka = "Urednik je izmenjen.";
+		return new ResponseDto<>(uspesnaPoruka, toDto(urednik));
 	}
 	
+	private KorisnikDto toDto(Korisnik korisnik) {
+		return new KorisnikDto(
+				korisnik.getKorisnikId(),
+				korisnik.getUsername(),
+				korisnik.getEmail(),
+				korisnik.getUloga(),
+				korisnik.isEnabled()
+		);
+	}
 }

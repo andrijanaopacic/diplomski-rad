@@ -1,5 +1,7 @@
 package ac.rs.bg.fon.backend.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,8 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ac.rs.bg.fon.backend.dto.impl.CreateUrednikDto;
 import ac.rs.bg.fon.backend.dto.impl.IzmeniUrednikaDto;
 import ac.rs.bg.fon.backend.dto.impl.KorisnikDto;
-import ac.rs.bg.fon.backend.dto.impl.PretragaUrednikaResponseDto;
-import ac.rs.bg.fon.backend.dto.impl.RegistracijaResponseDto;
+import ac.rs.bg.fon.backend.dto.impl.ResponseDto;
 import ac.rs.bg.fon.backend.service.KorisnikService;
 import jakarta.validation.Valid;
 
@@ -31,25 +32,25 @@ public class KorisnikController {
 	
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/urednik")
-	public ResponseEntity<RegistracijaResponseDto> createUrednik(@RequestBody CreateUrednikDto req) {
+	public ResponseEntity<ResponseDto<KorisnikDto>> createUrednik(@RequestBody CreateUrednikDto req) {
 		return ResponseEntity.ok(korisnikService.createUrednik(req));
 	}
-	
+ 
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/urednik/pretraga")
-	public ResponseEntity<PretragaUrednikaResponseDto> pretraziUrednike(@RequestParam String tekst) {
-	    return ResponseEntity.ok(korisnikService.pretraziUrednike(tekst));
+	public ResponseEntity<ResponseDto<List<KorisnikDto>>> findUrednike(@RequestParam String tekst) {
+		return ResponseEntity.ok(korisnikService.findUrednike(tekst));
 	}
-	
+ 
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/urednik/{id}")
-	public ResponseEntity<KorisnikDto> ucitajUrednika(@PathVariable Long id){
-		return ResponseEntity.ok(korisnikService.ucitajUrednika(id));
+	public ResponseEntity<KorisnikDto> loadUrednika(@PathVariable Long id) {
+		return ResponseEntity.ok(korisnikService.loadUrednika(id));
 	}
-	
+ 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/urednik/{id}")
-	public ResponseEntity<RegistracijaResponseDto> izmeniUrednika(@PathVariable Long id, @RequestBody IzmeniUrednikaDto req) {
-	    return ResponseEntity.ok(korisnikService.izmeniUrednika(id, req));
+	public ResponseEntity<ResponseDto<KorisnikDto>> updateUrednika(@PathVariable Long id, @RequestBody IzmeniUrednikaDto req) {
+		return ResponseEntity.ok(korisnikService.updateUrednika(id, req));
 	}
 }

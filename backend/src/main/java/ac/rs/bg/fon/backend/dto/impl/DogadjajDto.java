@@ -10,8 +10,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegistracijaResponseDto implements Dto{
+public class DogadjajDto implements Dto {
 
-	private String poruka;
-	private KorisnikDto korisnik;
+	private Long dogadjajId;
+	private String naziv;
+	private String opis;
+	private String slika;
+	private String organizacijaNaziv;
 }

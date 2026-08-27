@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Link } from 'react-router-dom'
 import api from '../api/axios'
 import DodajUrednikaModal from '../components/DodajUrednikaModal'
 import IzmeniUrednikaModal from '../components/IzmeniUrednikaModal'
+import Meni from '../components/Meni'
 
 export default function UredniciPage() {
   const [tekst, setTekst] = useState('')
@@ -18,14 +18,16 @@ export default function UredniciPage() {
       const response = await api.get('/korisnik/urednik/pretraga', {
         params: { tekst: vrednost },
       })
-      setUrednici(response.data.urednici)
+      setUrednici(response.data.podaci)
+      setPoruka(response.data.poruka)
+      setTimeout(() => setPoruka(''), 4000)
       setInfoTekst('')
     } catch (err) {
       setUrednici([])
       setInfoTekst(err.response?.data?.message || 'Nema pronađenih urednika.')
     }
   }, [])
-  
+
   useEffect(() => {
     const timer = setTimeout(() => {
       pretrazi(tekst)
@@ -52,10 +54,8 @@ export default function UredniciPage() {
   }
 
   return (
-    <div className="page">
-      <nav className="menu">
-        <Link to="/">← Nazad na početnu</Link>
-      </nav>
+    <div className="page page-wide">
+      <Meni />
 
       <h1>Urednici</h1>
 

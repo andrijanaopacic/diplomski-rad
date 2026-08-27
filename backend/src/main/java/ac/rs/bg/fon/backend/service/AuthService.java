@@ -19,7 +19,7 @@ import ac.rs.bg.fon.backend.dto.impl.KorisnikDto;
 import ac.rs.bg.fon.backend.dto.impl.LoginRequestDto;
 import ac.rs.bg.fon.backend.dto.impl.RegisterOrganizacijaDto;
 import ac.rs.bg.fon.backend.dto.impl.RegisterRequestDto;
-import ac.rs.bg.fon.backend.dto.impl.RegistracijaResponseDto;
+import ac.rs.bg.fon.backend.dto.impl.ResponseDto;
 import ac.rs.bg.fon.backend.entity.impl.Korisnik;
 import ac.rs.bg.fon.backend.entity.impl.Organizacija;
 import ac.rs.bg.fon.backend.entity.impl.Uloga;
@@ -81,25 +81,30 @@ public class AuthService {
 			throw new ValidacijaException(poruka, fieldErrors);
 		}
 	}
- 
+	
 	@Transactional
-	public RegistracijaResponseDto registerOrganizacija(RegisterOrganizacijaDto req) {
-		proveriValidnost(req, "Sistem ne može da registruje organizaciju.");
+	public ResponseDto<KorisnikDto> registerOrganizacija(RegisterOrganizacijaDto req) {
+		String poruka = "Sistem ne može da registruje organizaciju.";
+		proveriValidnost(req, poruka);
  
-		Long pib = parsirajBroj(req.getPib(), "pib", "PIB mora biti broj.", "Sistem ne može da registruje organizaciju.");
-		Long mb = parsirajBroj(req.getMb(), "mb", "Matični broj mora biti broj.", "Sistem ne može da registruje organizaciju.");
+		Long pib = parsirajBroj(req.getPib(), "pib", "PIB mora biti broj.", poruka);
+		Long mb = parsirajBroj(req.getMb(), "mb", "Matični broj mora biti broj.", poruka);
  
+		Map<String, String> fieldErrors = new LinkedHashMap<>();
 		if (korisnikRepository.existsByUsername(req.getUsername())) {
-			throw new RuntimeException("Korisničko ime je zauzeto.");
+			fieldErrors.put("username", "Korisničko ime je zauzeto.");
 		}
 		if (korisnikRepository.existsByEmail(req.getEmail())) {
-			throw new RuntimeException("Email adresa je zauzeta.");
+			fieldErrors.put("email", "Email adresa je zauzeta.");
 		}
 		if (organizacijaRepository.existsByPib(pib)) {
-			throw new RuntimeException("Organizacija sa ovim PIB-om već postoji.");
+			fieldErrors.put("pib", "Organizacija sa ovim PIB-om već postoji.");
 		}
 		if (organizacijaRepository.existsByMb(mb)) {
-			throw new RuntimeException("Organizacija sa ovim matičnim brojem već postoji.");
+			fieldErrors.put("mb", "Organizacija sa ovim matičnim brojem već postoji.");
+		}
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidacijaException(poruka, fieldErrors);
 		}
  
 		Organizacija organizacija = new Organizacija();
@@ -120,19 +125,24 @@ public class AuthService {
  
 		posaljiVerifikacioniMejl(admin);
  
-		String poruka = "Registracija je pokrenuta. Proverite Vaš email radi potvrde naloga.";
-		return new RegistracijaResponseDto(poruka, toDto(admin));
+		String uspesnaPoruka = "Registracija je pokrenuta. Proverite Vaš email radi potvrde naloga.";
+		return new ResponseDto<>(uspesnaPoruka, toDto(admin));
 	}
  
 	@Transactional
-	public RegistracijaResponseDto register(RegisterRequestDto req) {
-		proveriValidnost(req, "Sistem ne može da registruje korisnika.");
+	public ResponseDto<KorisnikDto> register(RegisterRequestDto req) {
+		String poruka = "Sistem ne može da registruje korisnika.";
+		proveriValidnost(req, poruka);
  
+		Map<String, String> fieldErrors = new LinkedHashMap<>();
 		if (korisnikRepository.existsByUsername(req.getUsername())) {
-			throw new RuntimeException("Korisničko ime je zauzeto.");
+			fieldErrors.put("username", "Korisničko ime je zauzeto.");
 		}
 		if (korisnikRepository.existsByEmail(req.getEmail())) {
-			throw new RuntimeException("Email adresa je zauzeta.");
+			fieldErrors.put("email", "Email adresa je zauzeta.");
+		}
+		if (!fieldErrors.isEmpty()) {
+			throw new ValidacijaException(poruka, fieldErrors);
 		}
  
 		Korisnik korisnik = new Korisnik();
@@ -146,21 +156,22 @@ public class AuthService {
  
 		posaljiVerifikacioniMejl(korisnik);
  
-		String poruka = "Registracija je pokrenuta. Proverite Vaš email radi potvrde naloga.";
-		return new RegistracijaResponseDto(poruka, toDto(korisnik));
+		String uspesnaPoruka = "Registracija je pokrenuta. Proverite Vaš email radi potvrde naloga.";
+		return new ResponseDto<>(uspesnaPoruka, toDto(korisnik));
 	}
  
 	public AuthResponseDto login(LoginRequestDto req) {
-		proveriValidnost(req, "Sistem ne može da prijavi korisnika.");
+		String poruka = "Sistem ne može da prijavi korisnika.";
+		proveriValidnost(req, poruka);
  
 		try {
 			authManager.authenticate(new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword()));
 		} catch (BadCredentialsException | DisabledException ex) {
-			throw new RuntimeException("Sistem ne može da prijavi korisnika.");
+			throw new ValidacijaException(poruka, Map.of());
 		}
  
 		Korisnik korisnik = korisnikRepository.findByUsername(req.getUsername())
-				.orElseThrow(() -> new RuntimeException("Sistem ne može da prijavi korisnika."));
+				.orElseThrow(() -> new ValidacijaException(poruka, Map.of()));
  
 		return new AuthResponseDto(generateToken(korisnik), toDto(korisnik), "Uspešna prijava na sistem.");
 	}

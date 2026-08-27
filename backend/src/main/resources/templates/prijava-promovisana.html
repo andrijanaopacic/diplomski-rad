@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<body style="margin:0; padding:0; background-color:#0d0d0d; font-family: Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#0d0d0d; padding:32px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="560" cellpadding="0" cellspacing="0"
+               style="background-color:#1c1c1c; border:1px solid #2a2a2a; border-radius:16px; padding:40px; max-width:560px;">
+          <tr>
+            <td>
+              <h2 style="color:#ff8800; margin:0 0 20px; font-size:24px;">Oslobodilo se mesto!</h2>
+              <p style="color:#f5f5f5; font-size:15px; line-height:1.6; margin:0 0 8px;">
+                Zdravo {{username}},
+              </p>
+              <p style="color:#f5f5f5; font-size:15px; line-height:1.6; margin:0 0 24px;">
+                Mesto se oslobodilo, i Vaša prijava na aktivnost <strong style="color:#ff8800;">{{aktivnostNaziv}}</strong>
+                je sada potvrđena.
+              </p>
+              <p style="color:#ccc; font-size:14px; line-height:1.6; margin:0 0 20px;">
+                Pokažite ovaj QR kod na samom događaju radi evidentiranja prisustva:
+              </p>
+              <p style="text-align:center; margin:0 0 24px;">
+                <span style="display:inline-block; background-color:#ffffff; padding:16px; border-radius:12px;">
+                  <img src="data:image/png;base64,{{qrKodBase64}}" alt="QR kod" width="200" height="200"
+                       style="display:block;" />
+                </span>
+              </p>
+              <p style="color:#999; font-size:14px; margin:0;">Vidimo se!</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
