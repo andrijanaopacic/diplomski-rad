@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -46,6 +47,9 @@ public class AuthService {
 	private final PasswordEncoder encoder;
 	private final MailService mailService;
 	private final Validator validator;
+	
+	@Value("${app.backend.url:http://localhost:8080}")
+	private String backendUrl;
  
 	public AuthService(AuthenticationManager authManager, JwtProvider jwtProvider,
 			KorisnikRepository korisnikRepository, OrganizacijaRepository organizacijaRepository,
@@ -197,17 +201,22 @@ public class AuthService {
 		VerificationToken vt = VerificationToken.of(korisnik, VERIFICATION_TTL_SECONDS);
 		verificationTokenRepository.save(vt);
  
-		String verifyUrl = "http://localhost:8080/api/auth/verify?token=" + vt.getToken();
+		String verifyUrl = backendUrl + "/api/auth/verify?token=" + vt.getToken();
  
-		mailService.sendTemplatedHtml(
-				korisnik.getEmail(),
-				"Potvrda naloga",
-				"verification-email.html",
-				Map.of(
-						"username", korisnik.getUsername(),
-						"verifyUrl", verifyUrl
-				)
-		);
+		try {
+			mailService.sendTemplatedHtml(
+					korisnik.getEmail(),
+					"Potvrda naloga",
+					"verification-email.html",
+					Map.of(
+							"username", korisnik.getUsername(),
+							"verifyUrl", verifyUrl
+					)
+			);
+		} catch (Exception ex) {
+			throw new RuntimeException(
+					"Trenutno ne možemo da pošaljemo verifikacioni mejl. Pokušajte ponovo za par minuta.", ex);
+		}
 	}
  
 	private String generateToken(Korisnik korisnik) {
