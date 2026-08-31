@@ -22,4 +22,5 @@ public interface PrijavaRepository extends JpaRepository<Prijava, Long>{
  
 	List<Prijava> findByAktivnost(Aktivnost aktivnost);
 	 
+	boolean existsByAktivnost(Aktivnost aktivnost);
 }

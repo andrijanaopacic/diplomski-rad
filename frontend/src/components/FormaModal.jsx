@@ -23,15 +23,21 @@ export default function FormaModal({ dogadjajId, aktivnostId, onClose, onSaved }
 
   const putanja = `/dogadjaj/${dogadjajId}/aktivnost/${aktivnostId}/forma`
 
+
   useEffect(() => {
     async function ucitaj() {
       try {
         const response = await api.get(putanja)
-        setNaziv(response.data.naziv)
-        setPolja(response.data.polja)
+        setNaziv(response.data.podaci.naziv)
+        setPolja(response.data.podaci.polja)
         setPostojiForma(true)
       } catch (err) {
-        setPostojiForma(false)
+        const poruka = err.response?.data?.message
+        if (poruka === 'Sistem ne može da učita formu za prijavu.') {
+          setPostojiForma(false)
+        } else {
+          setError(poruka || 'Greška pri učitavanju forme.')
+        }
       } finally {
         setUcitavanje(false)
       }
@@ -99,15 +105,17 @@ export default function FormaModal({ dogadjajId, aktivnostId, onClose, onSaved }
   }
 
   async function handleObrisiFormu() {
-    if (!window.confirm('Da li sigurno želiš da obrišeš celu formu za prijavu?')) return
+      if (!window.confirm('Da li sigurno želite da obrišete celu formu za prijavu?')) return
 
-    try {
-      const response = await api.delete(putanja)
-      onSaved(response.data.poruka)
-      onClose()
-    } catch (err) {
-      alert(err.response?.data?.message || 'Greška prilikom brisanja forme.')
-    }
+      try {
+        const response = await api.delete(putanja)
+        onSaved(response.data.poruka)
+        onClose()
+      } catch (err) {
+        const data = err.response?.data
+        const razlog = data?.fieldErrors?.razlog
+        alert(razlog ? `${data.message}\n${razlog}` : (data?.message || 'Greška prilikom brisanja forme.'))
+      }
   }
 
   const dodatneGreske = Object.entries(fieldErrors).filter(([kljuc]) => kljuc !== 'naziv')

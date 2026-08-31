@@ -44,7 +44,7 @@ public class KorisnikController {
  
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/urednik/{id}")
-	public ResponseEntity<KorisnikDto> loadUrednika(@PathVariable Long id) {
+	public ResponseEntity<ResponseDto<KorisnikDto>> loadUrednika(@PathVariable Long id) {
 		return ResponseEntity.ok(korisnikService.loadUrednika(id));
 	}
  

@@ -45,7 +45,7 @@ public class AktivnostController {
  
 	@PreAuthorize("hasAnyRole('ADMIN', 'UREDNIK')")
 	@GetMapping("/{aktivnostId}")
-	public ResponseEntity<AktivnostDto> loadAktivnost(@PathVariable Long dogadjajId, @PathVariable Long aktivnostId) {
+	public ResponseEntity<ResponseDto<AktivnostDto>> loadAktivnost(@PathVariable Long dogadjajId, @PathVariable Long aktivnostId) {
 		return ResponseEntity.ok(aktivnostService.loadAktivnost(dogadjajId, aktivnostId));
 	}
 	
@@ -70,7 +70,7 @@ public class AktivnostController {
  
 	@PreAuthorize("hasRole('UCESNIK')")
 	@GetMapping("/javno/{aktivnostId}")
-	public ResponseEntity<AktivnostSaFormomDto> loadAktivnostPublic(@PathVariable Long dogadjajId, @PathVariable Long aktivnostId) {
+	public ResponseEntity<ResponseDto<AktivnostSaFormomDto>> loadAktivnostPublic(@PathVariable Long dogadjajId, @PathVariable Long aktivnostId) {
 		return ResponseEntity.ok(aktivnostService.loadAktivnostPublic(dogadjajId, aktivnostId));
 	}
 }

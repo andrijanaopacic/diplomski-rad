@@ -31,18 +31,18 @@ export default function PrijavaFormaPage() {
   const [fieldErrors, setFieldErrors] = useState({})
   const [loading, setLoading] = useState(false)
 
-  async function ucitaj() {
-    try {
-      const response = await api.get(`/dogadjaj/${dogadjajId}/aktivnost/javno/${aktivnostId}`)
-      setAktivnost(response.data.aktivnost)
-      setForma(response.data.forma)
-      setMojStatus(response.data.mojStatusPrijave)
-    } catch (err) {
-      setError(err.response?.data?.message || 'Greška pri učitavanju aktivnosti.')
-    } finally {
-      setUcitavanje(false)
-    }
+async function ucitaj() {
+  try {
+    const response = await api.get(`/dogadjaj/${dogadjajId}/aktivnost/javno/${aktivnostId}`)
+    setAktivnost(response.data.podaci.aktivnost)
+    setForma(response.data.podaci.forma)
+    setMojStatus(response.data.podaci.mojStatusPrijave)
+  } catch (err) {
+    setError(err.response?.data?.message || 'Greška pri učitavanju aktivnosti.')
+  } finally {
+    setUcitavanje(false)
   }
+}
 
   useEffect(() => {
     ucitaj()

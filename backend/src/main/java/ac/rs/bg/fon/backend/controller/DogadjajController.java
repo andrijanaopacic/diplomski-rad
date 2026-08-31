@@ -46,7 +46,7 @@ public class DogadjajController {
  
 	@PreAuthorize("hasAnyRole('ADMIN', 'UREDNIK')")
 	@GetMapping("/{id}")
-	public ResponseEntity<DogadjajDto> loadDogadjaj(@PathVariable Long id) {
+	public ResponseEntity<ResponseDto<DogadjajDto>> loadDogadjaj(@PathVariable Long id) {
 		return ResponseEntity.ok(dogadjajService.loadDogadjaj(id));
 	}
  
@@ -68,7 +68,7 @@ public class DogadjajController {
 	}
  
 	@GetMapping("/javno/{id}")
-	public ResponseEntity<DogadjajDto> loadDogadjajPublic(@PathVariable Long id) {
+	public ResponseEntity<ResponseDto<DogadjajDto>>loadDogadjajPublic(@PathVariable Long id) {
 		return ResponseEntity.ok(dogadjajService.loadDogadjajPublic(id));
 	}
 }

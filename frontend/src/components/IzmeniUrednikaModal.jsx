@@ -2,21 +2,25 @@ import { useState, useEffect } from 'react'
 import api from '../api/axios'
 
 export default function IzmeniUrednikaModal({ urednikId, onClose, onEdited }) {
+  
   const [form, setForm] = useState({ email: '', enabled: true, password: '' })
   const [ucitavanje, setUcitavanje] = useState(true)
   const [error, setError] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
   const [loading, setLoading] = useState(false)
+  const [poruka, setPoruka] = useState('')
 
   useEffect(() => {
     async function ucitaj() {
       try {
         const response = await api.get(`/korisnik/urednik/${urednikId}`)
         setForm({
-          email: response.data.email,
-          enabled: response.data.enabled,
+          email: response.data.podaci.email,
+          enabled: response.data.podaci.enabled,
           password: '',
         })
+        setPoruka(response.data.poruka)
+        setTimeout(() => setPoruka(''), 4000)
       } catch (err) {
         setError(err.response?.data?.message || 'Greška pri učitavanju urednika.')
       } finally {
@@ -66,6 +70,7 @@ export default function IzmeniUrednikaModal({ urednikId, onClose, onEdited }) {
           <form onSubmit={handleSubmit} className="auth-form" noValidate>
             <h1>Izmeni urednika</h1>
 
+            {poruka && <p className="success">{poruka}</p>}
             {error && <p className="error">{error}</p>}
 
             <label>

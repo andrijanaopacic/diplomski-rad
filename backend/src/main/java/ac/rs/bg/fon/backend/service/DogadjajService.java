@@ -130,7 +130,7 @@ public class DogadjajService {
 		List<Dogadjaj> listaDogadjaja = dogadjajRepository.pretraziDogadjaje(organizacija, tekst);
  
 		if (listaDogadjaja.isEmpty()) {
-			throw new RuntimeException("Sistem ne može da nađe događaje po zadatom kriterijumu.");
+		    throw new RuntimeException("Nema pronađenih događaja.");
 		}
  
 		List<DogadjajDto> dogadjaji = new ArrayList<>();
@@ -167,21 +167,22 @@ public class DogadjajService {
 		return new PorukaResponseDto("Događaj je obrisan.");
 	}
 	
-	public DogadjajDto loadDogadjaj(Long id) {
+	public ResponseDto<DogadjajDto> loadDogadjaj(Long id) {
 		Korisnik trenutni = trenutniKorisnik();
- 
+
 		Dogadjaj dogadjaj = dogadjajRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Sistem ne može da učita događaj."));
- 
+
 		boolean istaOrganizacija = dogadjaj.getOrganizacija() != null
 				&& dogadjaj.getOrganizacija().getOrganizacijaId()
 						.equals(trenutni.getOrganizacija().getOrganizacijaId());
- 
+
 		if (!istaOrganizacija) {
 			throw new RuntimeException("Sistem ne može da učita događaj.");
 		}
- 
-		return toDto(dogadjaj);
+
+		String poruka = "Sistem je učitao događaj.";
+		return new ResponseDto<>(poruka, toDto(dogadjaj));
 	}
 	
 	public ResponseDto<List<DogadjajDto>> findDogadjajePublic(String tekst) {
@@ -200,11 +201,12 @@ public class DogadjajService {
 		return new ResponseDto<>(poruka, dogadjaji);
 	}
 	
-	public DogadjajDto loadDogadjajPublic(Long id) {
+	public ResponseDto<DogadjajDto> loadDogadjajPublic(Long id) {
 		Dogadjaj dogadjaj = dogadjajRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Sistem ne može da učita događaj."));
- 
-		return toDto(dogadjaj);
+
+		String poruka = "Sistem je učitao događaj.";
+		return new ResponseDto<>(poruka, toDto(dogadjaj));
 	}
 	
 	

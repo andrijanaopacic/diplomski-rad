@@ -16,25 +16,30 @@ export default function DogadjajiPage() {
 
   const navigate = useNavigate()
 
-  const pretrazi = useCallback(async (vrednost) => {
-    try {
-      const response = await api.get('/dogadjaj/pretraga', { params: { tekst: vrednost } })
-      setDogadjaji(response.data.podaci)
-      setInfoTekst('')
-    } catch (err) {
-      setDogadjaji([])
-      setInfoTekst(err.response?.data?.message || 'Nema pronađenih događaja.')
-    }
-  }, [])
+  const pretrazi = useCallback(async (vrednost, prikaziPoruku = true) => {
+      try {
+        const response = await api.get('/dogadjaj/pretraga', { params: { tekst: vrednost } })
+        setDogadjaji(response.data.podaci)
+        if (prikaziPoruku) {
+          setPoruka(response.data.poruka)
+          setTimeout(() => setPoruka(''), 4000)
+        }
+        setInfoTekst('')
+      } catch (err) {
+        setDogadjaji([])
+        setInfoTekst(err.response?.data?.message || 'Nema pronađenih događaja.')
+      }
+    }, [])
+
+  function osveziListu() {
+      pretrazi(tekst, false)
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => pretrazi(tekst), 300)
     return () => clearTimeout(timer)
   }, [tekst, pretrazi])
 
-  function osveziListu() {
-    pretrazi(tekst)
-  }
 
   function handleCreated(porukaSaServera) {
     setPoruka(porukaSaServera)
@@ -51,7 +56,7 @@ export default function DogadjajiPage() {
   }
 
   async function obrisi(id, naziv) {
-    if (!window.confirm(`Da li sigurno želiš da obrišeš događaj "${naziv}"?`)) return
+    if (!window.confirm(`Da li sigurno želite da obrišete događaj "${naziv}"?`)) return
 
     try {
       const response = await api.delete(`/dogadjaj/${id}`)

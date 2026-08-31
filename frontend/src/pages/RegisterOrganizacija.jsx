@@ -45,7 +45,7 @@ export default function RegisterOrganizacija() {
     return (
       <div className="auth-page">
         <div className="auth-form">
-          <h1>Proveri mejl</h1>
+          <h1>Proverite mejl</h1>
           <p>{poruka}</p>
           <Link to="/login">Nazad na prijavu</Link>
         </div>
@@ -126,7 +126,7 @@ export default function RegisterOrganizacija() {
         </button>
 
         <p className="auth-links">
-          Već imaš nalog? <Link to="/login">Prijavi se</Link>
+          Već imate nalog? <Link to="/login">Prijavi se</Link>
         </p>
       </form>
     </div>

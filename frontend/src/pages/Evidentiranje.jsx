@@ -28,6 +28,7 @@ export default function EvidentiranjePage() {
     if (aktivnostId) ucitajListu(aktivnostId)
   }, [])
 
+  
   async function posaljiKod(vrednost) {
     if (!vrednost || loading) return
 
@@ -36,6 +37,8 @@ export default function EvidentiranjePage() {
     setLoading(true)
 
     try {
+      
+      await api.post('/pronadji-prijavu', null, { params: { kod: vrednost } })
       const response = await api.post('/evidentiranje-prisustva', { kod: vrednost })
       setPoruka(response.data.poruka)
       setKod('')

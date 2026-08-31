@@ -416,6 +416,14 @@ public class PrijavaService {
 		return findPrijave(dogadjajId, aktivnostId);
 	}
 	
+	public EvidentiranjeOdgovorDto pronadjiPrijavu(String kod) {
+		QRKod qrKod = qrKodRepository.findByKod(kod)
+				.orElseThrow(() -> new RuntimeException("Sistem ne može da pronađe prijavu."));
+
+		Long aktivnostId = qrKod.getPrijava().getAktivnost().getAktivnostId();
+		return new EvidentiranjeOdgovorDto("Sistem je pronašao prijavu.", aktivnostId);
+	}
+	
 	private boolean odgovaraTipu(TipPolja tip, String vrednost) {
 		try {
 			switch (tip) {

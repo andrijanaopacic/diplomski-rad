@@ -14,27 +14,31 @@ export default function IzmeniAktivnostModal({ dogadjajId, aktivnostId, onClose,
   const [error, setError] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
   const [loading, setLoading] = useState(false)
+  const [poruka, setPoruka] = useState('')
 
-  useEffect(() => {
-    async function ucitaj() {
-      try {
-        const response = await api.get(`/dogadjaj/${dogadjajId}/aktivnost/${aktivnostId}`)
-        setForm({
-          naziv: response.data.naziv,
-          opis: response.data.opis,
-          datumOdrzavanja: response.data.datumOdrzavanja,
-          rokZaPrijavu: response.data.rokZaPrijavu,
-          maksUcesnika: response.data.maksUcesnika,
-          mestoOdrzavanja: response.data.mestoOdrzavanja,
-        })
-      } catch (err) {
-        setError(err.response?.data?.message || 'Greška pri učitavanju aktivnosti.')
-      } finally {
-        setUcitavanje(false)
-      }
+ 
+useEffect(() => {
+  async function ucitaj() {
+    try {
+          const response = await api.get(`/dogadjaj/${dogadjajId}/aktivnost/${aktivnostId}`)
+          setForm({
+            naziv: response.data.podaci.naziv,
+            opis: response.data.podaci.opis,
+            datumOdrzavanja: response.data.podaci.datumOdrzavanja,
+            rokZaPrijavu: response.data.podaci.rokZaPrijavu,
+            maksUcesnika: response.data.podaci.maksUcesnika,
+            mestoOdrzavanja: response.data.podaci.mestoOdrzavanja,
+          })
+          setPoruka(response.data.poruka)
+          setTimeout(() => setPoruka(''), 4000)
+        } catch (err) {
+      setError(err.response?.data?.message || 'Greška pri učitavanju aktivnosti.')
+    } finally {
+      setUcitavanje(false)
     }
-    ucitaj()
-  }, [dogadjajId, aktivnostId])
+  }
+  ucitaj()
+}, [dogadjajId, aktivnostId])
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -71,6 +75,7 @@ export default function IzmeniAktivnostModal({ dogadjajId, aktivnostId, onClose,
           <form onSubmit={handleSubmit} className="auth-form" noValidate>
             <h1>Izmeni aktivnost</h1>
 
+            {poruka && <p className="success">{poruka}</p>}
             {error && <p className="error">{error}</p>}
 
             <label>

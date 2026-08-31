@@ -116,14 +116,15 @@ public class FormaService {
 		return new ResponseDto<>(uspesnaPoruka, toDto(forma));
 	}
 	
-	public FormaDto loadFormu(Long dogadjajId, Long aktivnostId) {
+	public ResponseDto<FormaDto> loadFormu(Long dogadjajId, Long aktivnostId) {
 		Korisnik trenutni = trenutniKorisnik();
 		Aktivnost aktivnost = ucitajSvojuAktivnost(dogadjajId, aktivnostId, trenutni);
 
 		Forma forma = formaRepository.findByAktivnost(aktivnost)
 				.orElseThrow(() -> new RuntimeException("Sistem ne može da učita formu za prijavu."));
 
-		return toDto(forma);
+		String poruka = "Sistem je učitao formu za prijavu.";
+		return new ResponseDto<>(poruka, toDto(forma));
 	}
 
 	public ResponseDto<FormaDto> updateFormu(Long dogadjajId, Long aktivnostId, IzmeniFormaDto req) {
@@ -187,12 +188,21 @@ public class FormaService {
 	}
 	
 	
+
 	public PorukaResponseDto deleteFormu(Long dogadjajId, Long aktivnostId) {
 		Korisnik trenutni = trenutniKorisnik();
 		Aktivnost aktivnost = ucitajSvojuAktivnost(dogadjajId, aktivnostId, trenutni);
 
 		Forma forma = formaRepository.findByAktivnost(aktivnost)
 				.orElseThrow(() -> new RuntimeException("Sistem ne može da učita formu za prijavu."));
+
+		for (PoljeForme polje : forma.getPoljaForme()) {
+			if (odgovorRepository.existsByPoljeForme(polje)) {
+				Map<String, String> fieldErrors = new LinkedHashMap<>();
+				fieldErrors.put("razlog", "Forma ima prijave sa odgovorima, ne može se obrisati.");
+				throw new ValidacijaException("Sistem ne može da obriše formu za prijavu.", fieldErrors);
+			}
+		}
 
 		formaRepository.delete(forma);
 

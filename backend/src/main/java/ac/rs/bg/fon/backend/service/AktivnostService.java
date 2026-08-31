@@ -25,6 +25,7 @@ import ac.rs.bg.fon.backend.entity.impl.Forma;
 import ac.rs.bg.fon.backend.entity.impl.Korisnik;
 import ac.rs.bg.fon.backend.entity.impl.Organizacija;
 import ac.rs.bg.fon.backend.entity.impl.PoljeForme;
+import ac.rs.bg.fon.backend.entity.impl.Prijava;
 import ac.rs.bg.fon.backend.entity.impl.StatusPrijave;
 import ac.rs.bg.fon.backend.exception.ValidacijaException;
 import ac.rs.bg.fon.backend.repository.impl.AktivnostRepository;
@@ -145,7 +146,7 @@ public class AktivnostService {
 		List<Aktivnost> listaAktivnosti = aktivnostRepository.pretraziAktivnosti(dogadjaj, tekst);
  
 		if (listaAktivnosti.isEmpty()) {
-			throw new RuntimeException("Sistem ne može da nađe aktivnosti po zadatom kriterijumu.");
+			throw new RuntimeException("Nema pronađenih aktivnosti.");
 		}
  
 		List<AktivnostDto> aktivnosti = new ArrayList<>();
@@ -157,18 +158,19 @@ public class AktivnostService {
 		return new ResponseDto<>(poruka, aktivnosti);
 	}
 	
-	public AktivnostDto loadAktivnost(Long dogadjajId, Long aktivnostId) {
+	public ResponseDto<AktivnostDto> loadAktivnost(Long dogadjajId, Long aktivnostId) {
 		Korisnik trenutni = trenutniKorisnik();
 		Dogadjaj dogadjaj = ucitajSvojDogadjaj(dogadjajId, trenutni);
- 
+
 		Aktivnost aktivnost = aktivnostRepository.findById(aktivnostId)
 				.orElseThrow(() -> new RuntimeException("Sistem ne može da učita aktivnost."));
- 
+
 		if (!aktivnost.getDogadjaj().getDogadjajId().equals(dogadjaj.getDogadjajId())) {
 			throw new RuntimeException("Sistem ne može da učita aktivnost.");
 		}
- 
-		return toDto(aktivnost);
+
+		String poruka = "Sistem je učitao aktivnost.";
+		return new ResponseDto<>(poruka, toDto(aktivnost));
 	}
 	
 	public ResponseDto<AktivnostDto> updateAktivnost(Long dogadjajId, Long aktivnostId, CreateAktivnostDto req) {
@@ -204,11 +206,25 @@ public class AktivnostService {
 		return new ResponseDto<>(uspesnaPoruka, toDto(aktivnost));
 	}
 	
+	
 	public PorukaResponseDto deleteAktivnost(Long dogadjajId, Long aktivnostId) {
 		Korisnik trenutni = trenutniKorisnik();
 		Aktivnost aktivnost = ucitajSvojuAktivnost(dogadjajId, aktivnostId, trenutni);
 
+		if (formaRepository.existsByAktivnost(aktivnost)) {
+			Map<String, String> fieldErrors = new LinkedHashMap<>();
+			fieldErrors.put("razlog", "Aktivnost ima formu za prijavu, prvo obrišite formu.");
+			throw new ValidacijaException("Sistem ne može da obriše aktivnost.", fieldErrors);
+		}
+
+		if (prijavaRepository.existsByAktivnost(aktivnost)) {
+			Map<String, String> fieldErrors = new LinkedHashMap<>();
+			fieldErrors.put("razlog", "Za aktivnost postoje prijave, ne može se obrisati.");
+			throw new ValidacijaException("Sistem ne može da obriše aktivnost.", fieldErrors);
+		}
+
 		aktivnostRepository.delete(aktivnost);
+
 		return new PorukaResponseDto("Aktivnost je obrisana.");
 	}
 	
@@ -231,28 +247,29 @@ public class AktivnostService {
 		return new ResponseDto<>(poruka, aktivnosti);
 	}
 	
-	public AktivnostSaFormomDto loadAktivnostPublic(Long dogadjajId, Long aktivnostId) {
+	public ResponseDto<AktivnostSaFormomDto> loadAktivnostPublic(Long dogadjajId, Long aktivnostId) {
 		Dogadjaj dogadjaj = dogadjajRepository.findById(dogadjajId)
 				.orElseThrow(() -> new RuntimeException("Sistem ne može da učita događaj."));
-	 
+
 		Aktivnost aktivnost = aktivnostRepository.findById(aktivnostId)
 				.orElseThrow(() -> new RuntimeException("Sistem ne može da učita aktivnost."));
-	 
+
 		if (!aktivnost.getDogadjaj().getDogadjajId().equals(dogadjaj.getDogadjajId())) {
 			throw new RuntimeException("Sistem ne može da učita aktivnost.");
 		}
-	 
+
 		FormaDto formaDto = formaRepository.findByAktivnost(aktivnost)
-										   .map(this::toFormaDto)
-										   .orElse(null);
-	 
+				.map(this::toFormaDto)
+				.orElse(null);
+
 		Korisnik trenutni = trenutniKorisnik();
 		StatusPrijave mojStatus = prijavaRepository
 				.findByKorisnikAndAktivnostAndStatusPrijaveNot(trenutni, aktivnost, StatusPrijave.OTKAZANA)
-				.map(p -> p.getStatusPrijave())
+				.map(Prijava::getStatusPrijave)
 				.orElse(null);
-	 
-		return new AktivnostSaFormomDto(toDto(aktivnost), formaDto, mojStatus);
+
+		String poruka = "Sistem je učitao aktivnost.";
+		return new ResponseDto<>(poruka, new AktivnostSaFormomDto(toDto(aktivnost), formaDto, mojStatus));
 	}
 	
 	private FormaDto toFormaDto(Forma forma) {

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ac.rs.bg.fon.backend.dto.impl.CreatePrijavaDto;
@@ -64,5 +65,11 @@ public class PrijavaController {
 	@GetMapping("/api/aktivnost/{aktivnostId}/prijava")
 	public ResponseEntity<ResponseDto<List<PrijavaListaStavkaDto>>> findPrijaveZaAktivnost(@PathVariable Long aktivnostId) {
 		return ResponseEntity.ok(prijavaService.findPrijaveZaAktivnost(aktivnostId));
+	}
+	
+	@PreAuthorize("hasAnyRole('ADMIN', 'UREDNIK')")
+	@PostMapping("/api/pronadji-prijavu")
+	public ResponseEntity<EvidentiranjeOdgovorDto> pronadjiPrijavu(@RequestParam String kod) {
+		return ResponseEntity.ok(prijavaService.pronadjiPrijavu(kod));
 	}
 }

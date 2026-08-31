@@ -13,20 +13,26 @@ export default function UredniciPage() {
   const [otvorenDodaj, setOtvorenDodaj] = useState(false)
   const [otvorenIzmeniId, setOtvorenIzmeniId] = useState(null)
 
-  const pretrazi = useCallback(async (vrednost) => {
-    try {
-      const response = await api.get('/korisnik/urednik/pretraga', {
-        params: { tekst: vrednost },
-      })
-      setUrednici(response.data.podaci)
-      setPoruka(response.data.poruka)
-      setTimeout(() => setPoruka(''), 4000)
-      setInfoTekst('')
-    } catch (err) {
-      setUrednici([])
-      setInfoTekst(err.response?.data?.message || 'Nema pronađenih urednika.')
-    }
-  }, [])
+  const pretrazi = useCallback(async (vrednost, prikaziPoruku = true) => {
+      try {
+        const response = await api.get('/korisnik/urednik/pretraga', {
+          params: { tekst: vrednost },
+        })
+        setUrednici(response.data.podaci)
+        if (prikaziPoruku) {
+          setPoruka(response.data.poruka)
+          setTimeout(() => setPoruka(''), 4000)
+        }
+        setInfoTekst('')
+      } catch (err) {
+        setUrednici([])
+        setInfoTekst(err.response?.data?.message || 'Nema pronađenih urednika.')
+      }
+    }, [])
+
+  function osveziListu() {
+      pretrazi(tekst, false)
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -34,10 +40,6 @@ export default function UredniciPage() {
     }, 300)
     return () => clearTimeout(timer)
   }, [tekst, pretrazi])
-
-  function osveziListu() {
-    pretrazi(tekst)
-  }
 
   function handleCreated(porukaSaServera) {
     setPoruka(porukaSaServera)

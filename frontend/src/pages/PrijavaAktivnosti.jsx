@@ -19,7 +19,7 @@ export default function PrijavaAktivnostiPage() {
     async function ucitajDogadjaj() {
       try {
         const response = await api.get(`/dogadjaj/javno/${dogadjajId}`)
-        setDogadjaj(response.data)
+        setDogadjaj(response.data.podaci)
       } catch (err) {
         setDogadjajError(err.response?.data?.message || 'Greška pri učitavanju događaja.')
       }

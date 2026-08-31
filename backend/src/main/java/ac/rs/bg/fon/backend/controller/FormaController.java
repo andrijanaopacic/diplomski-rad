@@ -36,7 +36,7 @@ public class FormaController {
 	
 	@PreAuthorize("hasAnyRole('ADMIN', 'UREDNIK')")
 	@GetMapping
-	public ResponseEntity<FormaDto> loadFormu(@PathVariable Long dogadjajId, @PathVariable Long aktivnostId) {
+	public ResponseEntity<ResponseDto<FormaDto>> loadFormu(@PathVariable Long dogadjajId, @PathVariable Long aktivnostId) {
 		return ResponseEntity.ok(formaService.loadFormu(dogadjajId, aktivnostId));
 	}
 

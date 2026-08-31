@@ -6,6 +6,7 @@ import IzmeniAktivnostModal from '../components/IzmeniAktivnostModal'
 import FormaModal from '../components/FormaModal'
 import Meni from '../components/Meni'
 import { formatDatum } from '../utils/format'
+import DetaljiAktivnostModal from '../components/DetaljiAktivnostModal'
 
 export default function DogadjajDetaljiPage() {
   const { id: dogadjajId } = useParams()
@@ -21,32 +22,40 @@ export default function DogadjajDetaljiPage() {
 
   const [otvorenDodaj, setOtvorenDodaj] = useState(false)
   const [otvorenIzmeniId, setOtvorenIzmeniId] = useState(null)
+  const [otvorenDetaljiId, setOtvorenDetaljiId] = useState(null)
   const [otvorenaFormaZaId, setOtvorenaFormaZaId] = useState(null)
 
-  useEffect(() => {
-    async function ucitajDogadjaj() {
-      try {
-        const response = await api.get(`/dogadjaj/${dogadjajId}`)
-        setDogadjaj(response.data)
-      } catch (err) {
-        setDogadjajError(err.response?.data?.message || 'Greška pri učitavanju događaja.')
-      }
-    }
-    ucitajDogadjaj()
-  }, [dogadjajId])
 
-  const pretrazi = useCallback(async (vrednost) => {
-    try {
-      const response = await api.get(`/dogadjaj/${dogadjajId}/aktivnost/pretraga`, {
-        params: { tekst: vrednost },
-      })
-      setAktivnosti(response.data.podaci)
-      setInfoTekst('')
-    } catch (err) {
-      setAktivnosti([])
-      setInfoTekst(err.response?.data?.message || 'Nema pronađenih aktivnosti.')
-    }
-  }, [dogadjajId])
+  useEffect(() => {
+      async function ucitajDogadjaj() {
+        try {
+          const response = await api.get(`/dogadjaj/${dogadjajId}`)
+          setDogadjaj(response.data.podaci)
+          setPoruka(response.data.poruka)
+          setTimeout(() => setPoruka(''), 4000)
+        } catch (err) {
+          setDogadjajError(err.response?.data?.message || 'Greška pri učitavanju događaja.')
+        }
+      }
+      ucitajDogadjaj()
+    }, [dogadjajId])
+
+  const pretrazi = useCallback(async (vrednost, prikaziPoruku = true) => {
+      try {
+        const response = await api.get(`/dogadjaj/${dogadjajId}/aktivnost/pretraga`, {
+          params: { tekst: vrednost },
+        })
+        setAktivnosti(response.data.podaci)
+        if (prikaziPoruku) {
+          setPoruka(response.data.poruka)
+          setTimeout(() => setPoruka(''), 4000)
+        }
+        setInfoTekst('')
+      } catch (err) {
+        setAktivnosti([])
+        setInfoTekst(err.response?.data?.message || 'Nema pronađenih aktivnosti.')
+      }
+    }, [dogadjajId])
 
   useEffect(() => {
     const timer = setTimeout(() => pretrazi(tekst), 300)
@@ -54,7 +63,7 @@ export default function DogadjajDetaljiPage() {
   }, [tekst, pretrazi])
 
   function osveziListu() {
-    pretrazi(tekst)
+    pretrazi(tekst, false)
   }
 
   function handleCreated(porukaSaServera) {
@@ -72,7 +81,7 @@ export default function DogadjajDetaljiPage() {
   }
 
   async function obrisi(aktivnostId, naziv) {
-    if (!window.confirm(`Da li sigurno želiš da obrišeš aktivnost "${naziv}"?`)) return
+    if (!window.confirm(`Da li sigurno želite da obrišete aktivnost "${naziv}"?`)) return
 
     try {
       const response = await api.delete(`/dogadjaj/${dogadjajId}/aktivnost/${aktivnostId}`)
@@ -145,8 +154,9 @@ export default function DogadjajDetaljiPage() {
                 {a.naziv} — {formatDatum(a.datumOdrzavanja)} — {a.mestoOdrzavanja}
               </span>
               <div className="dogadjaj-akcije">
+                <button onClick={() => setOtvorenDetaljiId(a.aktivnostId)}>Detalji</button>
                 <button onClick={() => setOtvorenIzmeniId(a.aktivnostId)}>Uredi</button>
-                <button onClick={() => setOtvorenaFormaZaId(a.aktivnostId)}>Formu</button>
+                <button onClick={() => setOtvorenaFormaZaId(a.aktivnostId)}>Forma</button>
                 <button onClick={() => navigate(`/dogadjaji/${dogadjajId}/aktivnost/${a.aktivnostId}/prijave`)}>
                   Prijave
                 </button>
@@ -171,6 +181,14 @@ export default function DogadjajDetaljiPage() {
           aktivnostId={otvorenIzmeniId}
           onClose={() => setOtvorenIzmeniId(null)}
           onEdited={handleEdited}
+        />
+      )}
+
+      {otvorenDetaljiId && (
+        <DetaljiAktivnostModal
+          dogadjajId={dogadjajId}
+          aktivnostId={otvorenDetaljiId}
+          onClose={() => setOtvorenDetaljiId(null)}
         />
       )}
 

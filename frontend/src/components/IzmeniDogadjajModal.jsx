@@ -9,24 +9,27 @@ export default function IzmeniDogadjajModal({ dogadjajId, onClose, onEdited }) {
   const [error, setError] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
   const [loading, setLoading] = useState(false)
+  const [poruka, setPoruka] = useState('')
 
   useEffect(() => {
-    async function ucitaj() {
-      try {
-        const response = await api.get(`/dogadjaj/${dogadjajId}`)
-        setForm({
-          naziv: response.data.naziv,
-          opis: response.data.opis,
-          slika: response.data.slika || '',
-        })
-      } catch (err) {
-        setError(err.response?.data?.message || 'Greška pri učitavanju događaja.')
-      } finally {
-        setUcitavanje(false)
+      async function ucitaj() {
+        try {
+          const response = await api.get(`/dogadjaj/${dogadjajId}`)
+          setForm({
+            naziv: response.data.podaci.naziv,
+            opis: response.data.podaci.opis,
+            slika: response.data.podaci.slika || '',
+          })
+          setPoruka(response.data.poruka)
+          setTimeout(() => setPoruka(''), 4000)
+        } catch (err) {
+          setError(err.response?.data?.message || 'Greška pri učitavanju događaja.')
+        } finally {
+          setUcitavanje(false)
+        }
       }
-    }
-    ucitaj()
-  }, [dogadjajId])
+      ucitaj()
+    }, [dogadjajId])
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -61,6 +64,7 @@ export default function IzmeniDogadjajModal({ dogadjajId, onClose, onEdited }) {
           <form onSubmit={handleSubmit} className="auth-form" noValidate>
             <h1>Izmeni događaj</h1>
 
+            {poruka && <p className="success">{poruka}</p>}
             {error && <p className="error">{error}</p>}
 
             <label>

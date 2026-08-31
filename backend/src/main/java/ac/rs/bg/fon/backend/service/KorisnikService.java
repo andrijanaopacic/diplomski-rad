@@ -107,20 +107,21 @@ public class KorisnikService {
 		return new ResponseDto<>(poruka, urednici);
 	}
  
-	public KorisnikDto loadUrednika(Long id) {
+	public ResponseDto<KorisnikDto> loadUrednika(Long id) {
 		Korisnik admin = trenutniKorisnik();
- 
+
 		Korisnik urednik = korisnikRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Sistem ne može da učita urednika."));
- 
+
 		boolean istaOrganizacija = urednik.getOrganizacija() != null
 				&& urednik.getOrganizacija().getOrganizacijaId().equals(admin.getOrganizacija().getOrganizacijaId());
- 
+
 		if (!istaOrganizacija || urednik.getUloga() != Uloga.UREDNIK) {
 			throw new RuntimeException("Sistem ne može da učita urednika.");
 		}
- 
-		return toDto(urednik);
+
+		String poruka = "Sistem je učitao urednika.";
+		return new ResponseDto<>(poruka, toDto(urednik));
 	}
  
 	public ResponseDto<KorisnikDto> updateUrednika(Long id, IzmeniUrednikaDto req) {
