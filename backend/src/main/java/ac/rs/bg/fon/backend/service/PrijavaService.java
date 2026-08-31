@@ -388,22 +388,21 @@ public class PrijavaService {
 	public EvidentiranjeOdgovorDto recordAttendance(EvidentirajPrisustvoDto req) {
 		String poruka = "Sistem ne može da evidentira prisustvo.";
 		proveriValidnost(req, poruka);
-	 
+
 		QRKod qrKod = qrKodRepository.findByKod(req.getKod())
 				.orElseThrow(() -> new RuntimeException("Sistem ne može da pronađe prijavu."));
-	 
+
 		if (qrKod.isIskoriscen()) {
 			Map<String, String> fieldErrors = new LinkedHashMap<>();
 			fieldErrors.put("razlog", "QR kod je već iskorišćen.");
 			throw new ValidacijaException(poruka, fieldErrors);
 		}
-	 
+
 		qrKod.setIskoriscen(true);
 		qrKod.setVremeDolaska(LocalDateTime.now());
 		qrKodRepository.save(qrKod);
-	 
+
 		Long aktivnostId = qrKod.getPrijava().getAktivnost().getAktivnostId();
-	 
 		return new EvidentiranjeOdgovorDto("Prisustvo je evidentirano.", aktivnostId);
 	}
 	
@@ -416,13 +415,6 @@ public class PrijavaService {
 		return findPrijave(dogadjajId, aktivnostId);
 	}
 	
-	public EvidentiranjeOdgovorDto pronadjiPrijavu(String kod) {
-		QRKod qrKod = qrKodRepository.findByKod(kod)
-				.orElseThrow(() -> new RuntimeException("Sistem ne može da pronađe prijavu."));
-
-		Long aktivnostId = qrKod.getPrijava().getAktivnost().getAktivnostId();
-		return new EvidentiranjeOdgovorDto("Sistem je pronašao prijavu.", aktivnostId);
-	}
 	
 	private boolean odgovaraTipu(TipPolja tip, String vrednost) {
 		try {

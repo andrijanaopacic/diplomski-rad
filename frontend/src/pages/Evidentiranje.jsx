@@ -38,7 +38,6 @@ export default function EvidentiranjePage() {
 
     try {
       
-      await api.post('/pronadji-prijavu', null, { params: { kod: vrednost } })
       const response = await api.post('/evidentiranje-prisustva', { kod: vrednost })
       setPoruka(response.data.poruka)
       setKod('')

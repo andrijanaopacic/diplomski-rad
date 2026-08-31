@@ -66,10 +66,4 @@ public class PrijavaController {
 	public ResponseEntity<ResponseDto<List<PrijavaListaStavkaDto>>> findPrijaveZaAktivnost(@PathVariable Long aktivnostId) {
 		return ResponseEntity.ok(prijavaService.findPrijaveZaAktivnost(aktivnostId));
 	}
-	
-	@PreAuthorize("hasAnyRole('ADMIN', 'UREDNIK')")
-	@PostMapping("/api/pronadji-prijavu")
-	public ResponseEntity<EvidentiranjeOdgovorDto> pronadjiPrijavu(@RequestParam String kod) {
-		return ResponseEntity.ok(prijavaService.pronadjiPrijavu(kod));
-	}
 }
